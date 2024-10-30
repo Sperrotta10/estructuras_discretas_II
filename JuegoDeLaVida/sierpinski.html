@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triángulo de Sierpinski - Trazos</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column; /* Mantiene la dirección de flex en columna */
+            align-items: center; /* Centra horizontalmente */
+            justify-content: flex-start; /* Alinea el contenido al inicio */
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1e1e1e;
+            color: white;
+            position: relative; /* Permite posicionar elementos hijos de forma absoluta */
+        }
+        h1 {
+            margin: 20px 0; /* Agrega margen al título */
+            text-align: center; /* Alinea el título al centro */
+            width: 100%; /* Hace que el título ocupe el ancho completo */
+        }
+        section {
+            position: absolute; /* Posiciona la sección de forma absoluta */
+            top: 70px; /* Espacio desde la parte superior, puedes ajustarlo */
+            left: 0; /* Posición a la izquierda del todo */
+            padding: 20px; /* Espaciado interno */
+            text-align: left; /* Alinea el texto a la izquierda */
+            background-color: rgba(30, 30, 30, 0.8); /* Fondo semitransparente */
+            border-radius: 8px; /* Bordes redondeados */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra */
+        }
+        label {
+            display: block; /* Cada etiqueta en una nueva línea */
+            margin: 10px 0 5px; /* Espaciado */
+            font-weight: bold; /* Texto en negrita */
+        }
+        input[type="range"], input[type="number"] {
+            width: calc(100% - 20px); /* Ancho completo menos el padding */
+            padding: 10px; /* Espaciado interno */
+            border: 1px solid #444; /* Bordes */
+            border-radius: 5px; /* Bordes redondeados */
+            background-color: #282828; /* Color de fondo */
+            color: white; /* Color del texto */
+        }
+        button {
+            margin-top: 15px; /* Espacio superior */
+            padding: 10px 15px; /* Espaciado interno */
+            border: none; /* Sin borde */
+            border-radius: 5px; /* Bordes redondeados */
+            background-color: #ff4d4d; /* Color de fondo */
+            color: white; /* Color del texto */
+            font-size: 16px; /* Tamaño de fuente */
+            cursor: pointer; /* Cambia el cursor al pasar el mouse */
+            transition: background-color 0.3s; /* Transición suave */
+        }
+        button:hover {
+            background-color: #ff6666; /* Color al pasar el mouse */
+        }
+        canvas {
+            border: 1px solid #444;
+            background-color: #282828;
+            position: absolute; /* Permite centrar el lienzo */
+            top: 50%; /* Posiciona el lienzo en el medio verticalmente */
+            left: 50%; /* Posiciona el lienzo en el medio horizontalmente */
+            transform: translate(-50%, -50%); /* Ajusta el lienzo para centrarlo */
+        }
+    </style>
+</head>
+<body>
+    <h1>Triángulo de Sierpinski</h1>
+    <section>
+        <p>Materia: Estructuras Discretas II</p>
+        <p>Santiago Perrotta</p>
+        <p>CI: 31014123</p>
+        <p>Sección: 306C1</p>
+        <label for="depth">Profundidad:</label>
+        <input type="range" id="depth" min="1" max="7" value="5">
+        <br>
+        <label for="size">Tamaño:</label>
+        <input type="number" id="size" value="600">
+        <br>
+        <label for="speed">Velocidad (ms):</label>
+        <input type="number" id="speed" value="100" min="10">
+        <br>
+        <button id="drawBtn">Dibujar Triángulo</button>
+    </section>
+    <canvas id="sierpinskiCanvas" width="600" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById("sierpinskiCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const colors = ["#ff4d4d", "#4d94ff", "#4dff88", "#ffff4d"]; // Colores para el gradiente
+        let colorIndex = 0;
+
+        // Almacena los segmentos a dibujar
+        let segments = [];
+
+        function generateSegments(x, y, size, depth) {
+            if (depth === 0) {
+                segments.push([[x, y], [x - size / 2, y + size * Math.sqrt(3) / 2]]);
+                segments.push([[x - size / 2, y + size * Math.sqrt(3) / 2], [x + size / 2, y + size * Math.sqrt(3) / 2]]);
+                segments.push([[x + size / 2, y + size * Math.sqrt(3) / 2], [x, y]]);
+                return;
+            }
+
+            // Generar segmentos recursivamente
+            generateSegments(x, y, size / 2, depth - 1);
+            generateSegments(x - size / 4, y + (size * Math.sqrt(3)) / 4, size / 2, depth - 1);
+            generateSegments(x + size / 4, y + (size * Math.sqrt(3)) / 4, size / 2, depth - 1);
+        }
+
+        function drawNextSegment(index, speed) {
+            if (index < segments.length) {
+                const segment = segments[index];
+                ctx.beginPath();
+                ctx.moveTo(segment[0][0], segment[0][1]);
+                ctx.lineTo(segment[1][0], segment[1][1]);
+                ctx.strokeStyle = colors[colorIndex % colors.length];
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                colorIndex++;
+                setTimeout(() => drawNextSegment(index + 1, speed), speed); // Usar la velocidad definida
+            }
+        }
+
+        function animateTriangle() {
+            const depth = parseInt(document.getElementById("depth").value);
+            const size = parseInt(document.getElementById("size").value);
+            const speed = parseInt(document.getElementById("speed").value);
+
+            // Limpiar el canvas antes de dibujar
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            segments = []; // Limpiar segmentos previos
+            colorIndex = 0; // Reiniciar el índice de color
+
+            generateSegments(canvas.width / 2, 20, size * 0.9, depth);
+            drawNextSegment(0, speed);
+        }
+
+        // Eliminar esta línea para que el triángulo no se dibuje al cargar
+        // animateTriangle(); 
+
+        document.getElementById("drawBtn").addEventListener("click", animateTriangle);
+    </script>
+</body>
+</html>
