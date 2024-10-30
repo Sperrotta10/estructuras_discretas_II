@@ -3,73 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Triángulo de Sierpinski - Trazos</title>
+    <title>Triángulo de Sierpinski y Juego de la Vida</title>
     <style>
         body {
             display: flex;
-            flex-direction: column; /* Mantiene la dirección de flex en columna */
-            align-items: center; /* Centra horizontalmente */
-            justify-content: flex-start; /* Alinea el contenido al inicio */
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
             background-color: #1e1e1e;
             color: white;
-            position: relative; /* Permite posicionar elementos hijos de forma absoluta */
+            position: relative;
         }
         h1 {
-            margin: 20px 0; /* Agrega margen al título */
-            text-align: center; /* Alinea el título al centro */
-            width: 100%; /* Hace que el título ocupe el ancho completo */
+            margin: 20px 0;
+            text-align: center;
+            width: 100%;
         }
         section {
-            position: absolute; /* Posiciona la sección de forma absoluta */
-            top: 70px; /* Espacio desde la parte superior, puedes ajustarlo */
-            left: 0; /* Posición a la izquierda del todo */
-            padding: 20px; /* Espaciado interno */
-            text-align: left; /* Alinea el texto a la izquierda */
-            background-color: rgba(30, 30, 30, 0.8); /* Fondo semitransparente */
-            border-radius: 8px; /* Bordes redondeados */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra */
+            position: absolute;
+            top: 70px;
+            left: 0;
+            padding: 20px;
+            text-align: left;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
         label {
-            display: block; /* Cada etiqueta en una nueva línea */
-            margin: 10px 0 5px; /* Espaciado */
-            font-weight: bold; /* Texto en negrita */
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
         }
         input[type="range"], input[type="number"] {
-            width: calc(100% - 20px); /* Ancho completo menos el padding */
-            padding: 10px; /* Espaciado interno */
-            border: 1px solid #444; /* Bordes */
-            border-radius: 5px; /* Bordes redondeados */
-            background-color: #282828; /* Color de fondo */
-            color: white; /* Color del texto */
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #282828;
+            color: white;
         }
         button {
-            margin-top: 15px; /* Espacio superior */
-            padding: 10px 15px; /* Espaciado interno */
-            border: none; /* Sin borde */
-            border-radius: 5px; /* Bordes redondeados */
-            background-color: #ff4d4d; /* Color de fondo */
-            color: white; /* Color del texto */
-            font-size: 16px; /* Tamaño de fuente */
-            cursor: pointer; /* Cambia el cursor al pasar el mouse */
-            transition: background-color 0.3s; /* Transición suave */
+            margin-top: 15px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff4d4d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #ff6666; /* Color al pasar el mouse */
+            background-color: #ff6666;
         }
         canvas {
             border: 1px solid #444;
             background-color: #282828;
-            position: absolute; /* Permite centrar el lienzo */
-            top: 50%; /* Posiciona el lienzo en el medio verticalmente */
-            left: 50%; /* Posiciona el lienzo en el medio horizontalmente */
-            transform: translate(-50%, -50%); /* Ajusta el lienzo para centrarlo */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 <body>
-    <h1>Triángulo de Sierpinski</h1>
+    <h1>Triángulo de Sierpinski y Juego de la Vida</h1>
     <section>
         <p>Materia: Estructuras Discretas II</p>
         <p>Santiago Perrotta</p>
@@ -85,17 +85,20 @@
         <input type="number" id="speed" value="100" min="10">
         <br>
         <button id="drawBtn">Dibujar Triángulo</button>
+        <button id="lifeBtn">Iniciar Juego de la Vida</button>
     </section>
-    <canvas id="sierpinskiCanvas" width="600" height="600"></canvas>
+    <canvas id="sierpinskiCanvas" width="600" height="600" style="display: block;"></canvas>
+    <canvas id="lifeCanvas" width="600" height="600" style="display: none;"></canvas>
 
     <script>
-        const canvas = document.getElementById("sierpinskiCanvas");
-        const ctx = canvas.getContext("2d");
+        const sierpinskiCanvas = document.getElementById("sierpinskiCanvas");
+        const lifeCanvas = document.getElementById("lifeCanvas");
+        const ctxSierpinski = sierpinskiCanvas.getContext("2d");
+        const ctxLife = lifeCanvas.getContext("2d");
 
-        const colors = ["#ff4d4d", "#4d94ff", "#4dff88", "#ffff4d"]; // Colores para el gradiente
+        // Configuración para el Triángulo de Sierpinski
+        const colors = ["#ff4d4d", "#4d94ff", "#4dff88", "#ffff4d"];
         let colorIndex = 0;
-
-        // Almacena los segmentos a dibujar
         let segments = [];
 
         function generateSegments(x, y, size, depth) {
@@ -105,8 +108,6 @@
                 segments.push([[x + size / 2, y + size * Math.sqrt(3) / 2], [x, y]]);
                 return;
             }
-
-            // Generar segmentos recursivamente
             generateSegments(x, y, size / 2, depth - 1);
             generateSegments(x - size / 4, y + (size * Math.sqrt(3)) / 4, size / 2, depth - 1);
             generateSegments(x + size / 4, y + (size * Math.sqrt(3)) / 4, size / 2, depth - 1);
@@ -115,35 +116,81 @@
         function drawNextSegment(index, speed) {
             if (index < segments.length) {
                 const segment = segments[index];
-                ctx.beginPath();
-                ctx.moveTo(segment[0][0], segment[0][1]);
-                ctx.lineTo(segment[1][0], segment[1][1]);
-                ctx.strokeStyle = colors[colorIndex % colors.length];
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                ctxSierpinski.beginPath();
+                ctxSierpinski.moveTo(segment[0][0], segment[0][1]);
+                ctxSierpinski.lineTo(segment[1][0], segment[1][1]);
+                ctxSierpinski.strokeStyle = colors[colorIndex % colors.length];
+                ctxSierpinski.lineWidth = 2;
+                ctxSierpinski.stroke();
                 colorIndex++;
-                setTimeout(() => drawNextSegment(index + 1, speed), speed); // Usar la velocidad definida
+                setTimeout(() => drawNextSegment(index + 1, speed), speed);
             }
         }
 
         function animateTriangle() {
+            sierpinskiCanvas.style.display = "block";
+            lifeCanvas.style.display = "none";
             const depth = parseInt(document.getElementById("depth").value);
             const size = parseInt(document.getElementById("size").value);
             const speed = parseInt(document.getElementById("speed").value);
-
-            // Limpiar el canvas antes de dibujar
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            segments = []; // Limpiar segmentos previos
-            colorIndex = 0; // Reiniciar el índice de color
-
-            generateSegments(canvas.width / 2, 20, size * 0.9, depth);
+            ctxSierpinski.clearRect(0, 0, sierpinskiCanvas.width, sierpinskiCanvas.height);
+            segments = [];
+            colorIndex = 0;
+            generateSegments(sierpinskiCanvas.width / 2, 20, size * 0.9, depth);
             drawNextSegment(0, speed);
         }
 
-        // Eliminar esta línea para que el triángulo no se dibuje al cargar
-        // animateTriangle(); 
+        // Configuración para el Juego de la Vida
+        const rows = 60;
+        const cols = 60;
+        const cellSize = 10;
+        let lifeGrid = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        function drawLifeGrid() {
+            ctxLife.clearRect(0, 0, lifeCanvas.width, lifeCanvas.height);
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    ctxLife.fillStyle = lifeGrid[row][col] ? "#4dff88" : "#282828";
+                    ctxLife.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        function updateLifeGrid() {
+            const newGrid = lifeGrid.map(arr => [...arr]);
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const neighbors = getAliveNeighbors(row, col);
+                    if (lifeGrid[row][col] === 1 && (neighbors < 2 || neighbors > 3)) newGrid[row][col] = 0;
+                    else if (lifeGrid[row][col] === 0 && neighbors === 3) newGrid[row][col] = 1;
+                }
+            }
+            lifeGrid = newGrid;
+            drawLifeGrid();
+        }
+
+        function getAliveNeighbors(row, col) {
+            let alive = 0;
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+                    const newRow = (row + i + rows) % rows;
+                    const newCol = (col + j + cols) % cols;
+                    alive += lifeGrid[newRow][newCol];
+                }
+            }
+            return alive;
+        }
+
+        function initLifeGrid() {
+            lifeGrid = Array.from({ length: rows }, () => Array(cols).fill(0).map(() => Math.random() < 0.3 ? 1 : 0));
+            sierpinskiCanvas.style.display = "none";
+            lifeCanvas.style.display = "block";
+            setInterval(updateLifeGrid, parseInt(document.getElementById("speed").value));
+        }
 
         document.getElementById("drawBtn").addEventListener("click", animateTriangle);
+        document.getElementById("lifeBtn").addEventListener("click", initLifeGrid);
     </script>
 </body>
 </html>
