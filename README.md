@@ -3,7 +3,7 @@
 Nombre: Santiago Perrotta <br>
 Seccion: 306C1
 
-- Tema: Automatas celulares, Juego de la vida, Trinagulo de Sierpinski
+## Tema: Automatas celulares, Juego de la vida, Trinagulo de Sierpinski
 
 - El Juego de la Vida es un autómata celular diseñado por el matemático británico John
 Conway en 1970. Es un sistema que evoluciona en una cuadrícula bidimensional y sigue reglas
