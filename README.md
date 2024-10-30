@@ -1,6 +1,6 @@
 # estructuras_discretas_II
 
-Nombre: Santiago Perrotta
+Nombre: Santiago Perrotta <br>
 Seccion: 306C1
 
 - Tema: Automatas celulares, Juego de la vida, Trinagulo de Sierpinski
